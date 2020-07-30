@@ -45,15 +45,17 @@ class WpServiceWorker:
             domain = '[("id","=","'+str(wp_instance_id)+'")]'
             wp_instance = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
             wp_instance = wp_instance[0]
-            print (wp_instance)
-#           command = 'wp plugin install '+ plugin['download_url']+' path="'+wp_instance['wp_path']+'" --activate '
+            #          print (wp_instance)
+            command = 'wp plugin install '+ plugin['download_url']+' --path="'+wp_instance['wp_path']+'" --activate'
             hostname = wp_instance['host']
             username = wp_instance['user']
             path = wp_instance['wp_path']
 
-
+          #  command = 'wp --info'  
+          #  complete_command = "ssh -t "+ hostname+"@"+ username + " \"bash -ic ' "+command+ "'\""
+            print (command)
             wp.execute_wp_cli(hostname, username, command)
-
+            #print (wp.read_stdout_csv(output))
 
 
 if __name__ == "__main__":

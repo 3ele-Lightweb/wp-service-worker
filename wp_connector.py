@@ -2,14 +2,16 @@ import paramiko
 import sys
 #global paths
 import os
-
+import subprocess
+import shlex
 
 class wp_connector:
     def execute_wp_cli(self, hostname, username, command):
             try:
-                complete_command = "ssh -t "+ hostname+"@"+ username + " \"bash -ic '"+command+"'\""
-                result = subprocess.check_output(complete_command, shell=True,stderr=subprocess.STDOUT)
-                
+                complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " '\""
+             #   print (complete_command)
+                result = subprocess.check_output(complete_command, shell=True)
+                result = complete_command
             except:
                # return err
     
@@ -17,8 +19,16 @@ class wp_connector:
                result = sys.exc_info()
             finally:
                 return result
-    
-
+            
+          #  try:
+          #      complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " '\""
+          #      args = shlex.split(complete_command)
+          #      print (args)
+          #      process = subprocess.check_output(complete_command, shell=False)
+          #      (stdout, stderr) = process.communicate()
+          #      print(stdout.decode())
+          #  except:
+          #      print("ERROR {} while running {}".format(sys.exc_info()[1], command))
     def read_stdout_csv(self,source, skipline=1):
         self.source = source
         list = self.source.split(sep=None, maxsplit=-1)
