@@ -11,12 +11,26 @@ class wp_connector:
             self.command = command
             self.username = username
             try:
-                ssh_client = paramiko.SSHClient()
-                ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                ssh_client.connect(hostname=self.hostname, username=self.username, key_filename=self.mySSHK)
-                stdin, stdout, stderr = ssh_client.exec_command(self.command)
-                msg = stdout.read().decode('utf-8')
-                return msg   
+                 ssh_client = paramiko.SSHClient()
+      #          ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+      #          ssh_client.connect(hostname=self.hostname, username=self.username, key_filename=self.mySSHK)
+       #         stdin, stdout, stderr = ssh_client.exec_command(self.command,get_pty=True)
+     #           channel =ssh_client.invoke_shell()
+    #            s = channel.sendall(self.command)
+    #            print (s)
+    #            s = channel.recv(4096)
+    #            print (s)
+             #   print (stdout.read().decode('utf-8'), flush=True)
+             #   print (stdout.read().decode('utf-8'), flush=True)
+             #   print (stderr.read().decode('utf-8'), flush=True)
+            #    msg = stdout.read().decode('utf-8')
+            
+           #     print (stdout.read().decode('utf-8'), flush=True)
+           #     print (stderr.read().decode('utf-8'), flush=True)
+           #     print (msg)
+           #     return msg
+                 os.system(command)
+                
             except:
                # return err
     

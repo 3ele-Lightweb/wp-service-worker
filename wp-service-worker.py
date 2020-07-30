@@ -2,7 +2,7 @@
 import os
 import  odoo_connector as oc
 import  wp_connector as wpc
-
+import subprocess
 from datetime import date
 from pathlib import Path
 import pathlib
@@ -11,7 +11,7 @@ from pathlib import Path
 home = str(Path.home())
 import logging
 
-logging.basicConfig(filename='daily_backups.log',level=logging.INFO)
+#logging.basicConfig(filename='daily_backups.log',level=logging.INFO)
 current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
 today = date.today()
@@ -45,11 +45,16 @@ class WpServiceWorker:
             domain = '[("id","=","'+str(wp_instance_id)+'")]'
             wp_instance = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
             wp_instance = wp_instance[0]
-            command = 'wp plugin install '+ plugin['download_url']+' path="'+wp_instance['wp_path']+'" --activate '
+            print (wp_instance)
+#           command = 'wp plugin install '+ plugin['download_url']+' path="'+wp_instance['wp_path']+'" --activate '
             hostname = wp_instance['host']
             username = wp_instance['user']
             path = wp_instance['wp_path']
-            wp.execute_wp_cli(hostname, username, command)
+            command = "ssh -t  "+ wp_instance['user']+"@"+ wp_instance['host'] + " \"bash -ic 'wp --info;'\""
+           # print (command)
+            result = subprocess.check_output(command, shell=True)
+            print (result)
+        #    wp.execute_wp_cli(hostname, username, command)
 
 
 
