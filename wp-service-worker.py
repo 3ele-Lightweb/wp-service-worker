@@ -17,13 +17,13 @@ current_file = pathlib.Path(__file__)
 today = date.today()
 date = today.strftime("%Y-%m-%d")
 class WpServiceWorker:
+    def __init__(self):
+        self.token = os.environ.get('ODOO_TOKEN')
+        self.host = "https://www.3ele.de/api"
+
     def install_plugin(self):
-
-        token = os.environ.get('ODOO_TOKEN')
-        host = "https://www.3ele.de/api"
-
         #init connector
-        odoo = oc.odoo_connector(token, host)
+        odoo = oc.odoo_connector(self.token, self.host)
         #set model
         model ="wp_instance.plugins"
         #set mod
@@ -33,14 +33,11 @@ class WpServiceWorker:
         #set fields, we need from the plugin
         fields='["name","download_url","wp_instance"]'
         #call odoo API
-
         plugin = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
         plugin = plugin[0]
         
         #init wp-connector
         wp = wpc.wp_connector()
-        
-
         for wp_instance_id in plugin['wp_instance']:
             model ="wp_instance.wp_core"
             mod = "search"
@@ -48,11 +45,11 @@ class WpServiceWorker:
             domain = '[("id","=","'+str(wp_instance_id)+'")]'
             wp_instance = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
             wp_instance = wp_instance[0]
-            command = 'wp plugin install '+ plugin['download_url']+' --activate'
+            command = 'wp plugin install '+ plugin['download_url']+' path="'+wp_instance['wp_path']+'" --activate '
             hostname = wp_instance['host']
             username = wp_instance['user']
             path = wp_instance['wp_path']
-            wp.execute_wp_cli( hostname, username, path, command)
+            wp.execute_wp_cli(hostname, username, command)
 
 
 

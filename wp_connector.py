@@ -1,29 +1,29 @@
-#import paramiko
+import paramiko
 import sys
 #global paths
-path = sys.path[0]
 import os
-path = '/home/piep/.ssh/'
-mySSHK = path + 'id_rsa.pub'
-mySSHK = os.environ.get('SSH_KEY')
+
+
 class wp_connector:
-    def execute_wp_cli(self, hostname, username, mySSHK, command):
+    def execute_wp_cli(self, hostname, username, command):
             self.hostname = hostname
-            self.mySSHK = mySSHK
+            self.mySSHK =  os.environ.get('SSH_KEY')
             self.command = command
             self.username = username
-
             try:
                 ssh_client = paramiko.SSHClient()
                 ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 ssh_client.connect(hostname=self.hostname, username=self.username, key_filename=self.mySSHK)
                 stdin, stdout, stderr = ssh_client.exec_command(self.command)
                 msg = stdout.read().decode('utf-8')
-                print (stdout.read().decode('utf-8'), flush=True)
-                print (stderr.read().decode('utf-8'), flush=True)
+                return msg   
+            except:
+               # return err
+    
+               print ("Unexpected error:", sys.exc_info())
             finally:
                 ssh_client.close()
-                return msg
+    
 
     def read_stdout_csv(self,source, skipline=1):
         self.source = source
