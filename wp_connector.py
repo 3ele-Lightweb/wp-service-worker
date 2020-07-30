@@ -6,37 +6,17 @@ import os
 
 class wp_connector:
     def execute_wp_cli(self, hostname, username, command):
-            self.hostname = hostname
-            self.mySSHK =  os.environ.get('SSH_KEY')
-            self.command = command
-            self.username = username
             try:
-                 ssh_client = paramiko.SSHClient()
-      #          ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-      #          ssh_client.connect(hostname=self.hostname, username=self.username, key_filename=self.mySSHK)
-       #         stdin, stdout, stderr = ssh_client.exec_command(self.command,get_pty=True)
-     #           channel =ssh_client.invoke_shell()
-    #            s = channel.sendall(self.command)
-    #            print (s)
-    #            s = channel.recv(4096)
-    #            print (s)
-             #   print (stdout.read().decode('utf-8'), flush=True)
-             #   print (stdout.read().decode('utf-8'), flush=True)
-             #   print (stderr.read().decode('utf-8'), flush=True)
-            #    msg = stdout.read().decode('utf-8')
-            
-           #     print (stdout.read().decode('utf-8'), flush=True)
-           #     print (stderr.read().decode('utf-8'), flush=True)
-           #     print (msg)
-           #     return msg
-                 os.system(command)
+                complete_command = "ssh -t "+ hostname+"@"+ username + " \"bash -ic '"+command+"'\""
+                result = subprocess.check_output(complete_command, shell=True,stderr=subprocess.STDOUT)
                 
             except:
                # return err
     
                print ("Unexpected error:", sys.exc_info())
+               result = sys.exc_info()
             finally:
-                ssh_client.close()
+                return result
     
 
     def read_stdout_csv(self,source, skipline=1):

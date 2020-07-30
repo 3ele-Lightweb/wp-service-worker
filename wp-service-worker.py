@@ -50,11 +50,9 @@ class WpServiceWorker:
             hostname = wp_instance['host']
             username = wp_instance['user']
             path = wp_instance['wp_path']
-            command = "ssh -t  "+ wp_instance['user']+"@"+ wp_instance['host'] + " \"bash -ic 'wp --info;'\""
-           # print (command)
-            result = subprocess.check_output(command, shell=True)
-            print (result)
-        #    wp.execute_wp_cli(hostname, username, command)
+
+
+            wp.execute_wp_cli(hostname, username, command)
 
 
 
