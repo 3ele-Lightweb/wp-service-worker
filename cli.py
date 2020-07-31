@@ -69,7 +69,7 @@ class wp__worker_cli:
 
         #set mod
         mod = "search"
-        data = odoo.get_record(mod=mod,model=model)
+        data = odoo.search_record(mod=mod,model=model)
         self.instances = data
         self.show_result( data)     
     
@@ -77,7 +77,9 @@ class wp__worker_cli:
 
 
         if (argument.isnumeric()):
+            id = self.odoo.browse_records(name=argument, model=model)
             return argument
+
         else:
             id = self.odoo.get_id_from_name(name=argument, model=model)
             if (id):

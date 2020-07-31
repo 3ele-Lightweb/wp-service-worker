@@ -22,7 +22,7 @@ date = today.strftime("%Y-%m-%d")
 class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
-        self.token="599049b6052d49cab0a7ca2692a1aa45"
+
         self.host = "https://www.3ele.de/api"
 
     
@@ -39,7 +39,7 @@ class WpServiceWorker:
         #set fields, we need from the plugin
         fields='["name","download_url","wp_instance"]'
         #call odoo API
-        plugin = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
+        plugin = odoo.search_record(domain=domain,fields=fields,mod=mod,model=model)
         plugin = plugin[0]
         
         #init wp-connector
@@ -49,7 +49,7 @@ class WpServiceWorker:
             mod = "search"
             fields='["name","url","wp_path","sql_path","host","user","ssh_port"]'
             domain = '[("id","=","'+str(wp_instance_id)+'")]'
-            wp_instance = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
+            wp_instance = odoo.search_record(domain=domain,fields=fields,mod=mod,model=model)
             wp_instance = wp_instance[0]
             #          print (wp_instance)
             command = 'wp plugin install '+ plugin['download_url']+' --activate'
