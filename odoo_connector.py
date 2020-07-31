@@ -20,7 +20,7 @@ class odoo_connector:
         api_url = str(self.host) +'/'+ str(model) +'/search'
         r = requests.get(api_url, params=payload)
         domain='[("id", "in",'+ids+')]'
-        print r.url
+        print (r.url)
         wp_instances = r.json() 
         return wp_instances
 

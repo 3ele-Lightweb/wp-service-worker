@@ -77,7 +77,7 @@ class wp__worker_cli:
 
 
         if (argument.isnumeric()):
-            id = self.odoo.browse_records(name=argument, model=model)
+            id = self.odoo.browse_records(ids=[argument], model=model )
             return argument
 
         else:
