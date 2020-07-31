@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import paramiko
 import sys
 #global paths
@@ -6,11 +7,11 @@ import subprocess
 import shlex
 
 class wp_connector:
-    def execute_wp_cli(self, hostname, username, command):
+    def execute_wp_cli(self, hostname, username, wp_path, command):
             try:
-                complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " '\""
+                complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " --path="+wp_path+" '\""
              #   print (complete_command)
-                result = subprocess.check_output(complete_command, shell=True)
+                result = subprocess.check_output(complete_command, shell=False)
                 result = complete_command
             except:
                # return err
@@ -62,3 +63,59 @@ class wp_connector:
                 except:
         
                     pass
+def import_plugins():
+    
+    for wp_instance in wp_instances:
+      
+        command = 'wp plugin list --format=csv --path="' +wp_instance['wp_path']  + '" '
+        plugins = wp.execute_wp_cli(wp_instance['host'],wp_instance['user'] , command)
+        plugins_list = plugins.split(sep=None, maxsplit=-1)
+        plugins_list = iter(plugins_list)       
+        next(plugins_list)
+        plugins = []
+        for row in plugins_list:
+            column = row.split(',')       
+            plugin = {
+                "name": column[0],
+                "status": column[1],
+                "update": column[2],
+                "version": column[3]         
+            }
+            plugins.append(plugin)
+        print ()       
+        wp_instance_id = wp_instance['id']
+        common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
+        common.version()
+        uid = common.authenticate(db, username, password, {})
+        models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+        
+        plugins_count = models.execute_kw(db, uid, password,
+        'wp_instance.plugins', 'search_count',
+        [[['wp_instance','=', wp_instance_id]]],
+     )  
+  
+        
+        
+        if plugins_count <= len(plugins):          
+            for row in plugins_list:
+                column = row.split(',')
+                
+                plugin = {
+                    "name": column[0],
+                    "status": column[1],
+                    "update": column[2],
+                    "version": column[3]
+                
+                }
+    
+            for plugin in plugins:    
+
+                odoo.import_plugins(url,db,username,password, wp_instance_id, plugin)
+        elif plugins_count >= len(plugins):
+            
+            
+            
+            names = [ sub['name'] for sub in plugins ]
+            
+            
+            

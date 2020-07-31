@@ -1,12 +1,14 @@
+ #-*- coding: utf-8 -*-
 #custom models
 import os
 import  odoo_connector as oc
 import  wp_connector as wpc
+import cli as cli
 import subprocess
 from datetime import date
 from pathlib import Path
 import pathlib
-
+import sys
 from pathlib import Path
 home = str(Path.home())
 import logging
@@ -16,12 +18,15 @@ current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
 today = date.today()
 date = today.strftime("%Y-%m-%d")
+
 class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
 
-    def install_plugin(self):
+    
+
+    def update_plugin(self, name, target):
         #init connector
         odoo = oc.odoo_connector(self.token, self.host)
         #set model
@@ -46,7 +51,7 @@ class WpServiceWorker:
             wp_instance = odoo.get_record(domain=domain,fields=fields,mod=mod,model=model)
             wp_instance = wp_instance[0]
             #          print (wp_instance)
-            command = 'wp plugin install '+ plugin['download_url']+' --path="'+wp_instance['wp_path']+'" --activate'
+            command = 'wp plugin install '+ plugin['download_url']+' --activate'
             hostname = wp_instance['host']
             username = wp_instance['user']
             path = wp_instance['wp_path']
@@ -54,10 +59,15 @@ class WpServiceWorker:
           #  command = 'wp --info'  
           #  complete_command = "ssh -t "+ hostname+"@"+ username + " \"bash -ic ' "+command+ "'\""
             print (command)
-            wp.execute_wp_cli(hostname, username, command)
+            wp.execute_wp_cli(hostname, username, path, command)
             #print (wp.read_stdout_csv(output))
 
 
-if __name__ == "__main__":
-    worker = WpServiceWorker()
-    worker.install_plugin()
+if __name__ == "__main__": 
+    service = WpServiceWorker()
+    cli = cli.wp__worker_cli()
+    print (cli.model)
+    odoo = oc.odoo_connector(service.token, service.host)
+    wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")
+    print (wp_instance)
+

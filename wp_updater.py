@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #custom models
 import os
 import  odoo_connector as oc
