@@ -68,13 +68,15 @@ if __name__ == "__main__":
     service = WpServiceWorker()
     cli = cli.wp__worker_cli()
     wp = wpc.wp_connector()
-    print (cli.command)
-    print (cli.instances)
+
+    command ='wp '+ cli.mod +' '  + cli.command +' ' + cli.name
+    print (command)
     for wp_instance in cli.instances:
         hostname = wp_instance['host']
+        print (hostname)
         username = wp_instance['user']
         path = wp_instance['wp_path']
-        wp.execute_wp_cli(hostname, username, path,cli.command)
+        wp.execute_wp_cli(hostname, username, path,command)
 
    # odoo = oc.odoo_connector(service.token, service.host)
    # wp_instance = odoo.get_id_from_name(name=cli.target, model=cli.model)

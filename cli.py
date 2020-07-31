@@ -20,10 +20,12 @@ class wp__worker_cli:
                             help='add Record ID to change the target')
         args = parser.parse_args()
         mod_func = getattr(self,args.mod) 
+        self.mod = args.mod
         self.model = mod_func()
         self.service = s_worker.WpServiceWorker()
         self.odoo = oc.odoo_connector(self.service.token, self.service.host)
         self.command = args.command
+        self.name = args.name
         self.mods_of_targets(args.target)
       
 

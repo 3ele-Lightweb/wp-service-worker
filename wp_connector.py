@@ -11,7 +11,7 @@ class wp_connector:
             try:
                 complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " --path="+wp_path+" '\""
              #   print (complete_command)
-                result = subprocess.check_output(complete_command, shell=False)
+                result = subprocess.check_output(complete_command, shell=True)
                 result = complete_command
             except:
                # return err
