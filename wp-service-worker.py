@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 home = str(Path.home())
 import logging
-
+import json
 #logging.basicConfig(filename='daily_backups.log',level=logging.INFO)
 current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
@@ -24,7 +24,56 @@ class WpServiceWorker:
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
 
-    
+    def backup_instances(self):
+       #init connector
+        odoo = oc.odoo_connector(self.token, self.host)
+        #set model
+        model ="wp_instance.wp_core"
+        #set mod
+        mod = "search"
+        #set domain
+        #set fields, we need from the plugin
+        fields='["id","name"]'
+        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
+        for wp_instance in wp_instances:  
+                model = 'wp_instance.wp_core'
+                mod = 'backup_data'
+                backup_data = odoo.call_record_method(id='65', mod=mod,  model=model)
+                backup_data = backup_data['success']
+
+                
+                backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                
+
+                
+                backup_path = str(home)+"/daily_backups/"+wp_instance['name']+"/"+str(date)
+                Path(backup_path).mkdir(parents=True, exist_ok=True)
+                Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
+                #export sql File
+                command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' www/wp-cli/wp-cli.phar db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
+                try:  
+                    os.system(command)
+                except:
+                    logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                    pass
+                #download sql File
+                command ='rsync -az -az --stats '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
+                try: 
+                    os.system(command)           
+                except:
+                    logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                    pass
+                
+                
+                command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
+                try: 
+                    os.system(command)           
+                except:
+                    logging.info('daily export_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                    pass
+                
+                    
+
 
     def update_plugin(self, name, target):
         #init connector
@@ -64,10 +113,12 @@ class WpServiceWorker:
 
 
 if __name__ == "__main__": 
+    #cli = cli.wp__worker_cli()
     service = WpServiceWorker()
-    cli = cli.wp__worker_cli()
-    print (cli.model)
-    odoo = oc.odoo_connector(service.token, service.host)
-    wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")
-    print (wp_instance)
+
+    service.backup_instances()
+  #  print (cli.model)
+  #  odoo = oc.odoo_connector(service.token, service.host)
+  #  wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")
+  #  print (wp_instance)
 
