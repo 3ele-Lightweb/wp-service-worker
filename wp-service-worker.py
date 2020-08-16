@@ -24,7 +24,7 @@ class WpServiceWorker:
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
 
-    def backup_instances(self):
+    def backup_all(self):
        #init connector
         odoo = oc.odoo_connector(self.token, self.host)
         #set model
@@ -46,7 +46,7 @@ class WpServiceWorker:
 
                     
                     backup_data = json.loads(backup_data.replace("'",'"'))[0]
-                    print (backup_data)
+
 
 
                 
@@ -58,14 +58,14 @@ class WpServiceWorker:
                     try:  
                         os.system(command)
                     except:
-                        logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
                     try: 
                         os.system(command)           
                     except:
-                        logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
                         pass
                     
                     
@@ -73,12 +73,13 @@ class WpServiceWorker:
                     try: 
                         os.system(command)           
                     except:
-                        logging.info('daily dwonload_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        logging.info('daily backup download_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
                         pass
                 
                     
                 except:
-                    print ('json Error')
+                    logging.info('daily complete failed')
+      
 
     def update_plugin(self, name, target):
         #init connector
@@ -118,10 +119,11 @@ class WpServiceWorker:
 
 
 if __name__ == "__main__": 
-    #cli = cli.wp__worker_cli()
-    service = WpServiceWorker()
 
-    service.backup_instances()
+    service = WpServiceWorker()
+    cli = cli.wp__worker_cli()
+
+#    service.backup_instances()
   #  print (cli.model)
   #  odoo = oc.odoo_connector(service.token, service.host)
   #  wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")

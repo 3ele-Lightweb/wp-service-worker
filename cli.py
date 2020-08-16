@@ -12,10 +12,10 @@ class wp__worker_cli:
     
     def __init__(self):
         parser = argparse.ArgumentParser(description='Add mod, command and target')
-        parser.add_argument('mod', choices=['core', 'plugin', 'theme','db','config'],
+        parser.add_argument('mod', choices=['core', 'plugin', 'theme','db','config', 'backup'],
                             help='mod aka core, plugin theme')
         parser.add_argument('command')
-        parser.add_argument('name')
+        parser.add_argument('--name')
         parser.add_argument('--target', 
                             help='add Record ID to change the target')
         args = parser.parse_args()
@@ -27,7 +27,13 @@ class wp__worker_cli:
         self.command = args.command
         self.name = args.name
         self.mods_of_targets(args.target)
+        print (self.command)
+        if (self.command == 'backup'):
+            print (self.command)
+            self.odoo = oc.odoo_connector(self.service.token, self.service.host)
+            self.odoo.backup_all()
       
+
 
 #return modelname of args argument mod
 
@@ -45,6 +51,11 @@ class wp__worker_cli:
         global model 
         model = 'wp_instance.wp_core'
         return model
+
+    def backup(self): 
+        model = 'wp_instance.wp_core'
+        return model
+
 
 #return modelname of args argument target
 
