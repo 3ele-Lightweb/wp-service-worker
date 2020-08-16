@@ -81,7 +81,7 @@ class WpServiceWorker:
                     logging.info('daily complete failed')
       
 
-    def update_plugin(self, name, target):
+    def update_plugin(self, name):
         #init connector
         odoo = oc.odoo_connector(self.token, self.host)
         #set model
@@ -121,9 +121,9 @@ class WpServiceWorker:
 if __name__ == "__main__": 
 
     service = WpServiceWorker()
-    cli = cli.wp__worker_cli()
+ #   cli = cli.wp__worker_cli()
 
-#    service.backup_instances()
+    service.backup_all()
   #  print (cli.model)
   #  odoo = oc.odoo_connector(service.token, service.host)
   #  wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")

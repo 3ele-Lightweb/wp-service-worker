@@ -3,7 +3,7 @@
 import argparse
 import  odoo_connector as oc
 import  wp_connector as wpc
-import  wp_service_worker as s_worker
+from  wp_service_worker import WpServiceWorker
 from tabulate import tabulate
 import json
 class wp__worker_cli:
@@ -22,16 +22,17 @@ class wp__worker_cli:
         mod_func = getattr(self,args.mod) 
         self.mod = args.mod
         self.model = mod_func()
-        self.service = s_worker.WpServiceWorker()
+        self.service = WpServiceWorker()
         self.odoo = oc.odoo_connector(self.service.token, self.service.host)
         self.command = args.command
         self.name = args.name
         self.mods_of_targets(args.target)
-        print (self.command)
+
         if (self.command == 'backup'):
-            print (self.command)
+   
             self.odoo = oc.odoo_connector(self.service.token, self.service.host)
-            self.odoo.backup_all()
+            self.service = WpServiceWorker()
+            self.service.backup_all('target')
       
 
 
