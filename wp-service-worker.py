@@ -54,7 +54,7 @@ class WpServiceWorker:
                     Path(backup_path).mkdir(parents=True, exist_ok=True)
                     Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
                     #export sql File
-                    command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' www/wp-cli/wp-cli.phar db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
+                    command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
                     try:  
                         os.system(command)
                     except:
