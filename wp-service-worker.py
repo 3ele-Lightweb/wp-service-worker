@@ -38,11 +38,15 @@ class WpServiceWorker:
         for wp_instance in wp_instances:  
                 model = 'wp_instance.wp_core'
                 mod = 'backup_data'
-                backup_data = odoo.call_record_method(id='65', mod=mod,  model=model)
+                
+     
+                backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+          
                 backup_data = backup_data['success']
 
                 
                 backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                print (backup_data)
                 
 
                 
@@ -69,7 +73,7 @@ class WpServiceWorker:
                 try: 
                     os.system(command)           
                 except:
-                    logging.info('daily export_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                    logging.info('daily dwonload_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
                     pass
                 
                     
