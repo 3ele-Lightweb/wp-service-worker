@@ -61,7 +61,7 @@ class WpServiceWorker:
                         logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
                         pass
                     #download sql File
-                    command ='rsync -az -az --stats '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
+                    command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
                     try: 
                         os.system(command)           
                     except:
