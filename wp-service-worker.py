@@ -39,45 +39,46 @@ class WpServiceWorker:
                 model = 'wp_instance.wp_core'
                 mod = 'backup_data'
                 
-     
-                backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
-          
-                backup_data = backup_data['success']
+                try:
+                    backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+            
+                    backup_data = backup_data['success']
+
+                    
+                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                    print (backup_data)
+
 
                 
-                backup_data = json.loads(backup_data.replace("'",'"'))[0]
-                print (backup_data)
-                
-
-                
-                backup_path = str(home)+"/daily_backups/"+wp_instance['name']+"/"+str(date)
-                Path(backup_path).mkdir(parents=True, exist_ok=True)
-                Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
-                #export sql File
-                command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' www/wp-cli/wp-cli.phar db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
-                try:  
-                    os.system(command)
-                except:
-                    logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
-                    pass
-                #download sql File
-                command ='rsync -az -az --stats '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
-                try: 
-                    os.system(command)           
-                except:
-                    logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
-                    pass
-                
-                
-                command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
-                try: 
-                    os.system(command)           
-                except:
-                    logging.info('daily dwonload_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
-                    pass
+                    backup_path = str(home)+"/daily_backups/"+wp_instance['name']+"/"+str(date)
+                    Path(backup_path).mkdir(parents=True, exist_ok=True)
+                    Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
+                    #export sql File
+                    command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' www/wp-cli/wp-cli.phar db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
+                    try:  
+                        os.system(command)
+                    except:
+                        logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        pass
+                    #download sql File
+                    command ='rsync -az -az --stats '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
+                    try: 
+                        os.system(command)           
+                    except:
+                        logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        pass
+                    
+                    
+                    command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
+                    try: 
+                        os.system(command)           
+                    except:
+                        logging.info('daily dwonload_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + 'failed')
+                        pass
                 
                     
-
+                except:
+                    print ('json Error')
 
     def update_plugin(self, name, target):
         #init connector
