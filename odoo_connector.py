@@ -93,6 +93,7 @@ class odoo_connector:
                     
                 except:
                     logging.info('daily complete failed')
+                    print ('failed')
         
 
 
