@@ -5,7 +5,7 @@ import  odoo_connector as oc
 import  wp_connector as wpc
 import cli as cli
 import subprocess
-from datetime import date
+from datetime import datetime
 from pathlib import Path
 import pathlib
 import sys
@@ -15,7 +15,7 @@ import logging
 import json
 current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
-today = date.today()
+today = datetime.now()
 date = today.strftime("%Y-%m-%d-%H-%M")
 
 class WpServiceWorker:
@@ -36,6 +36,7 @@ class WpServiceWorker:
         wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
         #loop wp_instances
         for wp_instance in wp_instances:
+                print (wp_instance['name'])
                 id = wp_instance['id']
                 model = 'wp_instance.wp_core'
                 mod = 'backup_data'  
