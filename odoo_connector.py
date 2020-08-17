@@ -49,7 +49,7 @@ class odoo_connector:
             'subject' : subject,
             'body' : body,
             'res_id' : id,
-            'message_type' : 'Kommentar'
+      #      'message_type' : 'Kommentar'
         }
 
 
