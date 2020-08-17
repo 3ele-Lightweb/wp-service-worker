@@ -39,15 +39,17 @@ class odoo_connector:
             return  self.search_record(model=model, fields='["name", "id", "url"]', mod="browse", domain="[()]")
 
     def create_notification(self, model, id, action, command):
-        create_vals = {
+        payload = {
+            'token':self.token,
+            'create_vals': {
             'name' : action,
             'model': model,
             'subject' : action,
             'body' : action,
             'res_id' : id
-
         }
-        payload = {'token': self.token, 'create_vals': create_vals}
+        }
+
         api_url = str(self.host) +'/mail.message/create/'
         r = requests.get(api_url, params=payload)
         print (r.url)
