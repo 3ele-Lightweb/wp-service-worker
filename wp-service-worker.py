@@ -23,7 +23,6 @@ class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
-
     def backup_all(self):
        #init connector
         odoo = oc.odoo_connector(self.token, self.host)
@@ -35,21 +34,18 @@ class WpServiceWorker:
         #set fields, we need from the plugin
         fields='["id","name"]'
         wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
-        for wp_instance in wp_instances:  
+        for wp_instance in wp_instances:
+                action = 'loop wp_instances| '
+                model ="wp_instance.wp_core"
+                id = wp_instance['id']
+                command = 'Beginn update'
+                odoo.create_notification( model, id, action, command)
                 model = 'wp_instance.wp_core'
-                mod = 'backup_data'
-                
+                mod = 'backup_data'          
                 try:
                     backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
-            
                     backup_data = backup_data['success']
-
-                    
-                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
-
-
-
-                
+                    backup_data = json.loads(backup_data.replace("'",'"'))[0]             
                     backup_path = str(home)+"/daily_backups/"+wp_instance['name']+"/"+str(date)
                     Path(backup_path).mkdir(parents=True, exist_ok=True)
                     Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
