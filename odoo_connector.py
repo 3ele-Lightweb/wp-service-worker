@@ -38,22 +38,20 @@ class odoo_connector:
     def get_list_of_ids(self, model, domain='[()]' ):
             return  self.search_record(model=model, fields='["name", "id", "url"]', mod="browse", domain="[()]")
 
-    def create_notification(self, model, id, action, command):
-        payload = {
-            'token':self.token,
-            'create_vals': {
-            'name' : action,
+    def create_notification(self, model, id,name, subject, body):
+        create_vals= {
+            'name' : name,
             'model': model,
-            'subject' : action,
-            'body' : action,
+            'subject' : subject,
+            'body' : body,
             'res_id' : id
         }
-        }
+
 
         api_url = str(self.host) +'/mail.message/create/'
+        payload = {'token': self.token, 'create_vals': json.dumps(create_vals)}
         r = requests.get(api_url, params=payload)
-        print (r.url)
-        print (r)
+
         
      #   localhost:8069/api/product.product/create?token=24e635ff9cc74429bed3d420243f5aa6&
      #                   	create_vals={'name':'Apple'}

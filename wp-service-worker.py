@@ -34,14 +34,17 @@ class WpServiceWorker:
         #set fields, we need from the plugin
         fields='["id","name"]'
         wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
+        
         for wp_instance in wp_instances:
-                action = 'loop wp_instances| '
-                model ="wp_instance.wp_core"
                 id = wp_instance['id']
-                command = 'Beginn update'
-                odoo.create_notification( model, id, action, command)
+                
+       
+                
+   
                 model = 'wp_instance.wp_core'
-                mod = 'backup_data'          
+                mod = 'backup_data'  
+                name='daily backup'
+                body = ''
                 try:
                     backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
                     backup_data = backup_data['success']
@@ -53,29 +56,48 @@ class WpServiceWorker:
                     command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup_data['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
                     try:  
                         os.system(command)
+                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body = blogging_message + '</br>'
                     except:
-                        logging.info('daily backup export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
+                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body = logging_message + '</br>'  
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
                     try: 
-                        os.system(command)           
+                        os.system(command) 
+                        logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body = logging_message + '</br>'          
                     except:
-                        logging.info('daily backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
+                        logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body = logging_message + '</br>'  
+          
                         pass
                     
                     
                     command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
                     try: 
-                        os.system(command)           
+                        os.system(command)
+                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body = logging_message + '</br>'             
                     except:
-                        logging.info('daily backup download_wp_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed')
+                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body = logging_message + '</br>'    
                         pass
                 
                     
                 except:
-                    logging.info('daily complete failed')
-      
+                    logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                    logging.info(logging_message)
+                    body = body +logging_message + '</br>' 
+
+                odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
 
     def update_plugin(self, name):
         #init connector
