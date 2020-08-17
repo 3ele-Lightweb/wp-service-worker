@@ -13,16 +13,16 @@ from pathlib import Path
 home = str(Path.home())
 import logging
 import json
-#logging.basicConfig(filename='daily_backups.log',level=logging.INFO)
 current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
 today = date.today()
-date = today.strftime("%Y-%m-%d")
+date = today.strftime("%Y-%m-%d-%H-%M")
 
 class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
+    
     def backup_all(self):
        #init connector
         odoo = oc.odoo_connector(self.token, self.host)
@@ -31,21 +31,18 @@ class WpServiceWorker:
         #set mod
         mod = "search"
         #set domain
-        #set fields, we need from the plugin
+        #set fields, we need from the wp_instance
         fields='["id","name"]'
         wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
-        
+        #loop wp_instances
         for wp_instance in wp_instances:
                 id = wp_instance['id']
-                
-       
-                
-   
                 model = 'wp_instance.wp_core'
                 mod = 'backup_data'  
                 name='daily backup'
                 body = ''
                 try:
+                    #call methode from odoo wp_hosts modul to get sort data
                     backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
                     backup_data = backup_data['success']
                     backup_data = json.loads(backup_data.replace("'",'"'))[0]             
@@ -89,9 +86,7 @@ class WpServiceWorker:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>"    
-                        pass
-                
-                    
+                        pass   
                 except:
                     logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                     logging.info(logging_message)

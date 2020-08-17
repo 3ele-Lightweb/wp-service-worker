@@ -37,6 +37,10 @@ class odoo_connector:
     
     def get_list_of_ids(self, model, domain='[()]' ):
             return  self.search_record(model=model, fields='["name", "id", "url"]', mod="browse", domain="[()]")
+    
+  #  def get_project_id_from_record_id(self, wp_instance_id):
+  #      return  self.search_record(model=model, fields='["name", "id"]', mod="search", domain='[("name","=","'+name+'")]')
+
 
     def create_notification(self, model, id,name, subject, body):
         create_vals= {
@@ -44,7 +48,8 @@ class odoo_connector:
             'model': model,
             'subject' : subject,
             'body' : body,
-            'res_id' : id
+            'res_id' : id,
+            'message_type' : 'Kommentar'
         }
 
 
@@ -52,9 +57,7 @@ class odoo_connector:
         payload = {'token': self.token, 'create_vals': json.dumps(create_vals)}
         r = requests.get(api_url, params=payload)
 
-        
-     #   localhost:8069/api/product.product/create?token=24e635ff9cc74429bed3d420243f5aa6&
-     #                   	create_vals={'name':'Apple'}
+
 
 
 
