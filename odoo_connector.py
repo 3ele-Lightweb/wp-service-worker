@@ -2,7 +2,7 @@
 import logging
 import json
 import requests
-
+import logging
 class odoo_connector:
     def __init__(self, token, host):   
         self.token=token
@@ -50,6 +50,9 @@ class odoo_connector:
         payload = {'token': self.token, 'create_vals': create_vals}
         api_url = str(self.host) +'/mail.message/create/'
         r = requests.get(api_url, params=payload)
+        print (r.url)
+        print (r)
+        
      #   localhost:8069/api/product.product/create?token=24e635ff9cc74429bed3d420243f5aa6&
      #                   	create_vals={'name':'Apple'}
 
