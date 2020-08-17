@@ -58,11 +58,11 @@ class WpServiceWorker:
                         os.system(command)
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body = blogging_message + '</br>'
+                        body += blogging_message + '</br>'
                     except:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body = logging_message + '</br>'  
+                        body += logging_message + '</br>'  
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
@@ -70,11 +70,11 @@ class WpServiceWorker:
                         os.system(command) 
                         logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body = logging_message + '</br>'          
+                        body += logging_message + '</br>'          
                     except:
                         logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body = logging_message + '</br>'  
+                        body += logging_message + '</br>'  
           
                         pass
                     
@@ -84,11 +84,11 @@ class WpServiceWorker:
                         os.system(command)
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body = logging_message + '</br>'             
+                        body += logging_message + '</br>'             
                     except:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body = logging_message + '</br>'    
+                        body += logging_message + '</br>'    
                         pass
                 
                     
