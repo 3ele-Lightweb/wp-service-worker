@@ -49,10 +49,7 @@ class odoo_connector:
             'subject' : subject,
             'body' : body,
             'res_id' : id,
-      #      'message_type' : 'Kommentar'
         }
-
-
         api_url = str(self.host) +'/mail.message/create/'
         payload = {'token': self.token, 'create_vals': json.dumps(create_vals)}
         r = requests.get(api_url, params=payload)

@@ -17,7 +17,7 @@ current_dir = pathlib.Path(__file__).parent
 current_file = pathlib.Path(__file__)
 today = datetime.now()
 date = today.strftime("%Y-%m-%d-%H-%M")
-
+import fire
 class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
@@ -52,11 +52,12 @@ class WpServiceWorker:
                     Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
                     #export sql File
                     command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup_data['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
-                    try:  
-                        os.system(command)
+                    try: 
+                        
+                        output = subprocess.check_output(command, shell=True) 
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"
                     except:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
@@ -65,10 +66,10 @@ class WpServiceWorker:
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
                     try: 
-                        os.system(command) 
+                        output = subprocess.check_output(command, shell=True)  
                         logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"          
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
                     except:
                         logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
@@ -79,10 +80,10 @@ class WpServiceWorker:
                     
                     command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
                     try: 
-                        os.system(command)
+                        output = subprocess.check_output(command, shell=True) 
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"            
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
                     except:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
@@ -133,11 +134,11 @@ class WpServiceWorker:
 
 
 if __name__ == "__main__": 
-
-    service = WpServiceWorker()
+    fire.Fire(WpServiceWorker)
+    #service = WpServiceWorker()
  #   cli = cli.wp__worker_cli()
 
-    service.backup_all()
+    #service.backup_all()
   #  print (cli.model)
   #  odoo = oc.odoo_connector(service.token, service.host)
   #  wp_instance = odoo.get_id_from_name(name="timetorest", model="wp_instance.plugins")
