@@ -54,16 +54,18 @@ class WpServiceWorker:
                     command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup_data['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
                     try: 
                         
-                        output = subprocess.check_output(command, shell=True) 
+                        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT) 
+                        print (type(output))
+                        print (output)
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"
                         
                     except Exception as e:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>" 
-                        print (e)
+                        print (e.decode("utf-8"))
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
@@ -71,12 +73,12 @@ class WpServiceWorker:
                         output = subprocess.check_output(command, shell=True)  
                         logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
                     except Exception as e:
                         logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>" 
-                        print (e)
+                        print (e.decode("utf-8") )
                         pass
                     
                     
@@ -85,7 +87,7 @@ class WpServiceWorker:
                         output = subprocess.check_output(command, shell=True) 
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
                     except Exception as e:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
