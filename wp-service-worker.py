@@ -58,10 +58,12 @@ class WpServiceWorker:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"
-                    except:
+                        
+                    except Exception as e:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>" 
+                        print (e)
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
@@ -70,11 +72,11 @@ class WpServiceWorker:
                         logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
-                    except:
+                    except Exception as e:
                         logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>" 
-          
+                        print (e)
                         pass
                     
                     
@@ -84,15 +86,17 @@ class WpServiceWorker:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>"+'<p>'+ output + "<\p>"          
-                    except:
+                    except Exception as e:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
                         body += '<p>'+ logging_message + "<\p>"    
+                        print (e)
                         pass   
-                except:
+                except Exception as e:
                     logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                     logging.info(logging_message)
-                    body += '<p>'+ logging_message + "<\p>" 
+                    body += '<p>'+ logging_message + "<\p>"
+                    print (e)
 
                 odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
 
