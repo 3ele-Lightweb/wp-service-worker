@@ -39,17 +39,22 @@ class wp_connector:
         plugins = []
         for row in iter_list:
             column = row.split(',')
-            print (row)       
-            obj = {
-                "name": column[0],
-                "status": column[1],
-                "update": column[2],
+            print (row)
+            try:       
+                obj= {
+                    "name": column[0],
+                    "status": column[1],
+                    "update": column[2],
+            
+                }
         
-            }
-            try:
-                obj["version"]= column[3] 
             except:
-                obj["version"]= 'none'   
+                obj = {
+                          "name": column[0]
+                          
+                }
+      
+
             plugins.append(obj)
         
         return plugins
