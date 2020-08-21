@@ -49,7 +49,7 @@ class wp_connector:
             try:
                 obj["version"]= column[3] 
             except:
-                obj["version"]: 'none'   
+                obj["version"]= 'none'   
             plugins.append(obj)
         
         return plugins
