@@ -65,8 +65,8 @@ class WpServiceWorker:
                     except Exception as e:
                         logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>" 
-                        print (e.decode("utf-8"))
+                        body += '<p>'+ logging_message + str(e)+"<\p>" 
+                        print (str(e))
                         pass
                     #download sql File
                     command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
@@ -78,8 +78,8 @@ class WpServiceWorker:
                     except Exception as e:
                         logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>" 
-                        print (e.decode("utf-8") )
+                        body += '<p>'+ logging_message + str(e)+"<\p>" 
+                        print (str(e) )
                         pass
                     
                     
@@ -92,14 +92,14 @@ class WpServiceWorker:
                     except Exception as e:
                         logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                         logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"    
-                        print (e)
+                        body += '<p>'+ logging_message + str(e) +"<\p>"    
+                        
                         pass   
                 except Exception as e:
                     logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                     logging.info(logging_message)
-                    body += '<p>'+ logging_message + "<\p>"
-                    print (e)
+                    body += '<p>'+ logging_message + str(e)+"<\p>"
+             
 
                 odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
 
