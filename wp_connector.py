@@ -38,7 +38,8 @@ class wp_connector:
         iter_list = self.read_stdout_csv(stout_csv)
         plugins = []
         for row in iter_list:
-            column = row.split(',')       
+            column = row.split(',')
+            print (row)       
             obj = {
                 "name": column[0],
                 "status": column[1],
@@ -46,7 +47,7 @@ class wp_connector:
         
             }
             try:
-                obj["version"]: column[3] 
+                obj["version"]= column[3] 
             except:
                 obj["version"]: 'none'   
             plugins.append(obj)
