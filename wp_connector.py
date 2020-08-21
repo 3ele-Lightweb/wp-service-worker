@@ -14,7 +14,7 @@ class wp_connector:
             except:  
                print ("Unexpected error:", sys.exc_info())
               # result = sys.exc_info()
-              result = ''
+               result = ''
                 
             finally:
                 return result.decode('utf-8')
