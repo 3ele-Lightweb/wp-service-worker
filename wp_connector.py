@@ -13,7 +13,8 @@ class wp_connector:
                 result = subprocess.check_output(complete_command, shell=True)     
             except:  
                print ("Unexpected error:", sys.exc_info())
-               result = sys.exc_info()
+              # result = sys.exc_info()
+                
             finally:
                 return result.decode('utf-8')
             
