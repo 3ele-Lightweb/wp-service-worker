@@ -46,8 +46,9 @@ class WpServiceWorker:
                     #call methode from odoo wp_hosts modul to get sort data
                     backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
                     backup_data = backup_data['success']
-                    backup_data = json.loads(backup_data.replace("'",'"'))[0]             
-                    backup_path = str(home)+"/daily_backups/"+wp_instance['name']+"/"+str(date)
+                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                    folder_name = wp_instance['name'].replace(" ", "")             
+                    backup_path = str(home)+"/daily_backups/"+folder_name+"/"+str(date)
                     Path(backup_path).mkdir(parents=True, exist_ok=True)
                     Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
                     #export sql File
