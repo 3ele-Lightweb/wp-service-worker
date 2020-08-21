@@ -10,14 +10,15 @@ class wp_connector:
     def execute_wp_cli(self, hostname, username, wp_path, command):
             try:
                 complete_command = "ssh  "+ username+"@"+ hostname + " "  +command
-                result = subprocess.check_output(complete_command, shell=True)     
+                result = subprocess.check_output(complete_command, shell=True) 
+                result = result.decode('utf-8')
             except:  
                print ("Unexpected error:", sys.exc_info())
               # result = sys.exc_info()
                result = ''
                 
             finally:
-                return result.decode('utf-8')
+                return result
             
     def read_stdout_csv(self,source, skipline=1):
         self.source = source
