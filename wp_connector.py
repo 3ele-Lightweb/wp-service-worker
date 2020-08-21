@@ -43,8 +43,12 @@ class wp_connector:
                 "name": column[0],
                 "status": column[1],
                 "update": column[2],
-                "version": column[3]         
+        
             }
+            try:
+                obj["version"]: column[3] 
+            except:
+                obj["version"]: 'none'   
             plugins.append(obj)
         
         return plugins
