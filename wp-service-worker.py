@@ -22,7 +22,7 @@ class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
-    
+
     def backup_all(self):
        #init connector
         odoo = oc.odoo_connector(self.token, self.host)
@@ -102,6 +102,120 @@ class WpServiceWorker:
              
 
                 odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
+
+    def import_wp_instance_plugins(self):
+        #init connector
+        odoo = oc.odoo_connector(self.token, self.host)
+        #set model
+        model ="wp_instance.wp_core"
+        #set mod
+        mod = "search"
+        #set domain
+        #domain = '[("name","=","wp-timetorest")]'
+        #set fields, we need from the plugin
+        fields='["name","id","plugins", "themes", "hoster"]'
+        #call odoo API
+        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
+        
+        #init wp-connector
+        wp = wpc.wp_connector()
+        for wp_instance in wp_instances:
+            model = 'wp_instance.wp_core'
+            mod = 'backup_data'  
+            host = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+
+            if (host):
+        
+                r_plugins = wp.import_plugins(host)
+                plugin_ids = []
+                for r_plugin in r_plugins:
+  
+                    model ="wp_instance.plugins"
+
+                    #plugin_records = odoo.get_id_from_name(r_plugin['name'], model)
+                    plugin_records =odoo.search_record(model,'search', fields='["id","name"]', 
+                    domain='[("wp_instance","=","'+str(wp_instance["id"])+'"),("name","=","'+r_plugin['name']+'")]')
+                    if(plugin_records):
+                        for plugin_record in plugin_records:
+                      
+                            plugin_ids.append(plugin_record['id'])
+                            odoo.update_record('wp_instance.plugins', plugin_record['id'], r_plugin)
+                    else: 
+                        plugin_records = odoo.search_record(model,'search', fields='["id","name"]',domain='[("name","=","'+str(r_plugin["name"])+'")]') 
+                        if(plugin_records):                          
+                            plugin_ids.append(plugin_records[0]['id'])
+                            r_plugin['wp_instance'] = 4,[wp_instance['id']]            
+                            print (odoo.update_record(model,plugin_records[0]['id'],r_plugin))
+                        else:
+                            r_plugin['wp_instance'] = [4,wp_instance['id']]
+                            
+                            plugin_id = odoo.create_record(model,r_plugin)
+   
+                            plugin_ids.append(plugin_id['id'])
+                      
+ 
+                
+                wp_instance['plugins'] = [(6,0,plugin_ids)]
+                print (wp_instance)
+                print (odoo.update_record('wp_instance.wp_core', wp_instance['id'], wp_instance))
+
+             #   wp.import_themes(host)
+
+    def import_wp_instance_themes(self):
+        #init connector
+        odoo = oc.odoo_connector(self.token, self.host)
+        #set model
+        model ="wp_instance.wp_core"
+        #set mod
+        mod = "search"
+        #set domain
+        #domain = '[("name","=","wp-timetorest")]'
+        #set fields, we need from the theme
+        fields='["name","id","themes", "themes", "hoster"]'
+        #call odoo API
+        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
+        
+        #init wp-connector
+        wp = wpc.wp_connector()
+        for wp_instance in wp_instances:
+            model = 'wp_instance.wp_core'
+            mod = 'backup_data'  
+            host = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+
+            if (host):
+        
+                r_themes = wp.import_themes(host)
+                theme_ids = []
+                for r_theme in r_themes:
+  
+                    model ="wp_instance.themes"
+
+                    #theme_records = odoo.get_id_from_name(r_theme['name'], model)
+                    theme_records =odoo.search_record(model,'search', fields='["id","name"]', 
+                    domain='[("wp_instance","=","'+str(wp_instance["id"])+'"),("name","=","'+r_theme['name']+'")]')
+                    if(theme_records):
+                        for theme_record in theme_records:
+                      
+                            theme_ids.append(theme_record['id'])
+                            odoo.update_record('wp_instance.themes', theme_record['id'], r_theme)
+                    else: 
+                        theme_records = odoo.search_record(model,'search', fields='["id","name"]',domain='[("name","=","'+str(r_theme["name"])+'")]') 
+                        if(theme_records):                          
+                            theme_ids.append(theme_records[0]['id'])
+                            r_theme['wp_instance'] = 4,[wp_instance['id']]            
+                            print (odoo.update_record(model,theme_records[0]['id'],r_theme))
+                        else:
+                            r_theme['wp_instance'] = [4,wp_instance['id']]
+                            
+                            theme_id = odoo.create_record(model,r_theme)
+   
+                            theme_ids.append(theme_id['id'])
+                      
+ 
+                
+                wp_instance['themes'] = [(6,0,theme_ids)]
+                print (wp_instance)
+                print (odoo.update_record('wp_instance.wp_core', wp_instance['id'], wp_instance))
 
     def update_plugin(self, name):
         #init connector

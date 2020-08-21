@@ -3,6 +3,7 @@ import logging
 import json
 import requests
 import logging
+import  odoo_connector as oc
 class odoo_connector:
     def __init__(self, token, host):   
         self.token=token
@@ -16,12 +17,19 @@ class odoo_connector:
        return wp_instances
 
     def call_record_method(self,id,mod,model):
-       payload = {'token': self.token}
-       api_url = str(self.host)+'/'+ str(model) +'/'+ str(id) +'/method/'+ str(mod)
-       r = requests.get(api_url, params=payload)
+        payload = {'token': self.token}
+        api_url = str(self.host)+'/'+ str(model) +'/'+ str(id) +'/method/'+ str(mod)
+        r = requests.get(api_url, params=payload)
 
-       action = r.json() 
-       return action
+        action = r.json()
+        if action.get('success'):
+            action = action['success'].replace("'",'"')
+            action = action.replace("False","false")
+
+            if("false" not in action): 
+                return json.loads(action)[0]
+        else:
+            pass 
 
     def browse_records(self, model, ids):
         payload = {'token': self.token}
@@ -33,7 +41,7 @@ class odoo_connector:
 
 
     def get_id_from_name(self, name, model):
-        return  self.search_record(model=model, fields='["name", "id"]', mod="search", domain='[("name","=","'+name+'")]')
+        return  self.search_record(model=model, fields='["id"]', mod="search", domain='[("name","=","'+name+'")]')
     
     def get_list_of_ids(self, model, domain='[()]' ):
             return  self.search_record(model=model, fields='["name", "id", "url"]', mod="browse", domain="[()]")
@@ -55,10 +63,20 @@ class odoo_connector:
         r = requests.get(api_url, params=payload)
 
 
+    def create_record(self, model,create_vals):
+        api_url = str(self.host) +'/'+str(model)+'/create/'
+        payload = {'token': self.token, 'create_vals': json.dumps(create_vals)}
+        r = requests.get(api_url, params=payload)
+        print (r.json())
+        return r.json()
 
 
-
-        
+    def update_record(self, model, id, create_vals):
+        api_url = str(self.host) +'/'+str(model)+'/update/'+str(id)
+        payload = {'token': self.token, 'update_vals': json.dumps(create_vals)}
+        r = requests.get(api_url, params=payload)  
+        print (r.url)    
+        return r.json() 
 
 
 

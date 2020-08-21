@@ -9,61 +9,65 @@ import shlex
 class wp_connector:
     def execute_wp_cli(self, hostname, username, wp_path, command):
             try:
-                complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " --path="+wp_path+" '\""
-             #   print (complete_command)
-                result = subprocess.check_output(complete_command, shell=True)
-                result = complete_command
-            except:
-               # return err
-    
+                complete_command = "ssh  "+ username+"@"+ hostname + " "  +command
+                result = subprocess.check_output(complete_command, shell=True)     
+            except:  
                print ("Unexpected error:", sys.exc_info())
                result = sys.exc_info()
             finally:
-                return result
+                return result.decode('utf-8')
             
-          #  try:
-          #      complete_command = "ssh -t "+ username+"@"+ hostname + " \"bash -ic ' " +command+ " '\""
-          #      args = shlex.split(complete_command)
-          #      print (args)
-          #      process = subprocess.check_output(complete_command, shell=False)
-          #      (stdout, stderr) = process.communicate()
-          #      print(stdout.decode())
-          #  except:
-          #      print("ERROR {} while running {}".format(sys.exc_info()[1], command))
     def read_stdout_csv(self,source, skipline=1):
         self.source = source
         list = self.source.split(sep=None, maxsplit=-1)
         iter_list = iter(list)
+
         next(iter_list, skipline)
+        
+
         return iter_list
 
-    def wp_update(self,mod, wp_instances):
-        if mod == 'core':
-                base_command = 'core update'
-        elif mod == 'theme':
-                base_command = 'theme update --all'
-        elif mod == 'plugin':  
-                base_command = 'plugin update --all' 
-    
+    def import_plugins(self, host):
+
+        command = host['wp_cli_path'] + ' plugin list --format=csv --path="' +host['wp_path'] + '" '
+
+        stout_csv = self.execute_wp_cli(host['wp_host'],host['user'] ,host['wp_path'], command)
+        iter_list = self.read_stdout_csv(stout_csv)
+        plugins = []
+        for row in iter_list:
+            column = row.split(',')       
+            obj = {
+                "name": column[0],
+                "status": column[1],
+                "update": column[2],
+                "version": column[3]         
+            }
+            plugins.append(obj)
+        
+        return plugins
+       
+    def import_themes(self, host):
+        command = host['wp_cli_path'] + ' theme list --format=csv --path="' +host['wp_path'] + '" '
+        stout_csv = self.execute_wp_cli(host['wp_host'],host['user'] ,host['wp_path'], command)
+        iter_list = self.read_stdout_csv(stout_csv)
+        themes = []
+        for row in iter_list:
+            column = row.split(',')       
+            obj = {
+                "name": column[0],
+                "status": column[1],
+                "update": column[2],
+                "version": column[3]         
+            }
+            themes.append(obj)
+        
+        return themes
+
                 
                
             
-        for wp_instance in wp_instances:
-                user = str(wp_instance['user'][4:])
-                wp_cli_path ="www/htdocs/"+ str(user) +"/wp-cli/wp-cli.phar"
-                wp_path = str(wp_instance['wp_path'])
-                
-        
-                command =  wp_cli_path +' ' + base_command +' --path="' + wp_path + '" '
-
-                try:
-                    
-                    msg = self.execute_wp_cli(wp_instance['host'], wp_instance['user'], mySSHK, command)
-                    print (msg)
-                except:
-        
-                    pass
-def import_plugins():
+     
+def import_plugins2():
     
     for wp_instance in wp_instances:
       
