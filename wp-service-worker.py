@@ -233,8 +233,8 @@ class core(WpServiceWorker):
     def __init__(self, target):
         super().__init__()
         self.odoo = oc.odoo_connector(self.token, self.host)
-            #set model
-        model ="wp_instance.wp_core"
+        #set model
+        self.model ="wp_instance.wp_core"
         #set mod
         mod = "search"    
         #set domain
@@ -243,28 +243,67 @@ class core(WpServiceWorker):
         
         if (is_int(target)):
 
-            records = self.odoo.get_record(model,target)
+            records = self.odoo.get_record(self.model,target)
             
             self.wp_instances = records 
         
         elif(target == 'all'):
-            self.wp_instances =self.odoo.search_record(model,mod, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]', domain='[]')
+            self.wp_instances =self.odoo.search_record(self.model,mod, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]', domain='[]')
             
             
             
+for wp_instance in wp_instances:
+            model = 'wp_instance.wp_core'
+            mod = 'backup_data'  
+            host = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+
+            if (host):
+        
+                r_plugins = wp.import_plugins(host)
+                plugin_ids = []
+                for r_plugin in r_plugins:
+  
+                    model ="wp_instance.plugins"
+
+                    #plugin_records = odoo.get_id_from_name(r_plugin['name'], model)
+                    plugin_records =odoo.search_record(model,'search', fields='["id","name"]', 
+                    domain='[("wp_instance","=","'+str(wp_instance["id"])+'"),("name","=","'+r_plugin['name']+'")]')
+                    if(plugin_records):
+                        for plugin_record in plugin_records:
+                      
+                            plugin_ids.append(plugin_record['id'])
+                            odoo.update_record('wp_instance.plugins', plugin_record['id'], r_plugin)
+                    else: 
+                        plugin_records = odoo.search_record(model,'search', fields='["id","name"]',domain='[("name","=","'+str(r_plugin["name"])+'")]') 
+                        if(plugin_records):                          
+                            plugin_ids.append(plugin_records[0]['id'])
+                            r_plugin['wp_instance'] = 4,[wp_instance['id']]            
+                            print (odoo.update_record(model,plugin_records[0]['id'],r_plugin))
+                        else:
+                            r_plugin['wp_instance'] = [4,wp_instance['id']]
+                            
+                            plugin_id = odoo.create_record(model,r_plugin)
+   
+                            plugin_ids.append(plugin_id['id'])
+                      
+ 
+                
+                wp_instance['plugins'] = [(6,0,plugin_ids)]
+                print (wp_instance)
+                print (odoo.update_record('wp_instance.wp_core', wp_instance['id'], wp_instance))
 
       
     def backup(self):
         for wp_instance in self.wp_instances:
                 print (wp_instance['name'])
                 id = wp_instance['id']
-                model = 'wp_instance.wp_core'
+                self.model = 'wp_instance.wp_core'
                 mod = 'backup_data'  
                 name='daily backup'
                 body = ''
                 try:
                     #call methode from odoo wp_hosts modul to get sort data
-                    backup_data = self.odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+                    backup_data = self.odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=self.model)
                     print (backup_data)
                     folder_name = wp_instance['name'].replace(" ", "")             
                     backup_path = str(home)+"/daily_backups/"+folder_name+"/"+str(date)
@@ -321,7 +360,7 @@ class core(WpServiceWorker):
                     body += '<p>'+ logging_message + str(e)+"<\p>"
              
 
-                self.odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
+                self.odoo.create_notification(model=self.model,id=id,name=name, subject=mod, body=body)
 
 
 if __name__ == "__main__": 
