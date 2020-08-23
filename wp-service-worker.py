@@ -251,11 +251,10 @@ class core(WpServiceWorker):
             self.wp_instances =self.odoo.search_record(self.model,mod, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]', domain='[]')
             
             
-            
-for wp_instance in wp_instances:
-            model = 'wp_instance.wp_core'
+    def import_plugins(self)         
+        for wp_instance in self.wp_instances:
             mod = 'backup_data'  
-            host = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+            host = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=self.model)
 
             if (host):
         
