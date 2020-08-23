@@ -29,7 +29,9 @@ class odoo_connector:
             if("false" not in action): 
                 return json.loads(action)[0]
         else:
-            pass 
+            print (action)
+            pass
+            
 
     def get_record(self, model, id, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]'):
         payload = {'token': self.token, 'fields':fields}
