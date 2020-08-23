@@ -18,10 +18,21 @@ current_file = pathlib.Path(__file__)
 today = datetime.now()
 date = today.strftime("%Y-%m-%d-%H-%M")
 import fire
+
+def is_int(val):
+    #if val.isdigit():
+    if type(val) == int:
+        return True
+    else:
+        return False
+
 class WpServiceWorker:
     def __init__(self):
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
+
+    def show(self):
+        print (self.wp_instances) 
 
  
     def import_wp_instance_plugins(self):
@@ -175,30 +186,76 @@ class WpServiceWorker:
             #print (wp.read_stdout_csv(output))
 
 class plugin(WpServiceWorker):
-        def __init__(self):
-            super().__init__()
+    def __init__(self, target):
+        super().__init__()
+
+        if (is_int(target)):
+            self.odoo = oc.odoo_connector(self.token, self.host)
+            #set model
+            model ="wp_instance.plugins"
+            #set mod
+            mod = "search"    
+            #set domain
+            #set fields, we need from the wp_instance
+            fields='["id","name"]'
+  
+            records = self.odoo.get_record(model,target, fields)
+            
+            self.wp_instances = records 
+        
+        else:
+            self.wp_instances = []
 
 class theme(WpServiceWorker):
-        def __init__(self):
+        def __init__(self, target):
             super().__init__()
 
+            if (is_int(target)):
+                self.odoo = oc.odoo_connector(self.token, self.host)
+                #set model
+                model ="wp_instance.themes"
+                #set mod
+                mod = "search"    
+                #set domain
+                #set fields, we need from the wp_instance
+                fields='["id","name"]'
+    
+                records = self.odoo.get_record(model,target, fields)
+                
+                self.wp_instances = records 
+            
+            else:
+                self.wp_instances = []
+
+            
+
 class core(WpServiceWorker):
-    def __init__(self):
+    def __init__(self, target):
         super().__init__()
-    def backup_all(self):
-        print ('start backup')
-       #init connector
-        odoo = oc.odoo_connector(self.token, self.host)
-        #set model
+        self.odoo = oc.odoo_connector(self.token, self.host)
+            #set model
         model ="wp_instance.wp_core"
         #set mod
-        mod = "search"
+        mod = "search"    
         #set domain
         #set fields, we need from the wp_instance
         fields='["id","name"]'
-        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
-        #loop wp_instances
-        for wp_instance in wp_instances:
+        
+        if (is_int(target)):
+
+            records = self.odoo.get_record(model,target)
+            
+            self.wp_instances = records 
+        
+        elif(target == 'all'):
+            self.wp_instances =self.odoo.search_record(model,mod, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]', domain='[]')
+            
+            
+            
+
+      
+    def backup(self):
+        for wp_instance in self.wp_instances:
                 print (wp_instance['name'])
                 id = wp_instance['id']
                 model = 'wp_instance.wp_core'
@@ -207,7 +264,7 @@ class core(WpServiceWorker):
                 body = ''
                 try:
                     #call methode from odoo wp_hosts modul to get sort data
-                    backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+                    backup_data = self.odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
                     backup_data = backup_data['success']
                     backup_data = json.loads(backup_data.replace("'",'"'))[0]
                     folder_name = wp_instance['name'].replace(" ", "")             
@@ -264,7 +321,7 @@ class core(WpServiceWorker):
                     body += '<p>'+ logging_message + str(e)+"<\p>"
              
 
-                odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
+                self.odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
 
 
 if __name__ == "__main__": 

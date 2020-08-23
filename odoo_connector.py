@@ -31,11 +31,12 @@ class odoo_connector:
         else:
             pass 
 
-    def browse_records(self, model, ids):
-        payload = {'token': self.token}
-        api_url = str(self.host) +'/'+ str(model) +'/search'
+    def get_record(self, model, id, fields='["id","name","url","wp_path","sql_path","host","user","ssh_port"]'):
+        payload = {'token': self.token, 'fields':fields}
+        api_url = str(self.host) +'/'+ str(model) +'/search/'+str(id)
         r = requests.get(api_url, params=payload)
-        domain='[("id", "in",'+ids+')]'
+        print (r.url)
+        
         wp_instances = r.json() 
         return wp_instances
 
