@@ -318,6 +318,7 @@ class core(WpServiceWorker):
                 except Exception as e:
                     logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                     logging.info(logging_message)
+                    print (logging_message)
                     body += '<p>'+ logging_message + str(e)+"<\p>"
              
 
