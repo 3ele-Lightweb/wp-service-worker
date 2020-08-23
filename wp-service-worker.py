@@ -265,8 +265,7 @@ class core(WpServiceWorker):
                 try:
                     #call methode from odoo wp_hosts modul to get sort data
                     backup_data = self.odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
-                    backup_data = backup_data['success']
-                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                    print (backup_data)
                     folder_name = wp_instance['name'].replace(" ", "")             
                     backup_path = str(home)+"/daily_backups/"+folder_name+"/"+str(date)
                     Path(backup_path).mkdir(parents=True, exist_ok=True)
@@ -318,7 +317,7 @@ class core(WpServiceWorker):
                 except Exception as e:
                     logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
                     logging.info(logging_message)
-                    print (logging_message)
+                    print (e)
                     body += '<p>'+ logging_message + str(e)+"<\p>"
              
 
