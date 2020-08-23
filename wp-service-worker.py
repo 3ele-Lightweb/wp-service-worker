@@ -23,86 +23,7 @@ class WpServiceWorker:
         self.token = os.environ.get('ODOO_TOKEN')
         self.host = "https://www.3ele.de/api"
 
-    def backup_all(self):
-       #init connector
-        odoo = oc.odoo_connector(self.token, self.host)
-        #set model
-        model ="wp_instance.wp_core"
-        #set mod
-        mod = "search"
-        #set domain
-        #set fields, we need from the wp_instance
-        fields='["id","name"]'
-        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
-        #loop wp_instances
-        for wp_instance in wp_instances:
-                print (wp_instance['name'])
-                id = wp_instance['id']
-                model = 'wp_instance.wp_core'
-                mod = 'backup_data'  
-                name='daily backup'
-                body = ''
-                try:
-                    #call methode from odoo wp_hosts modul to get sort data
-                    backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
-                    backup_data = backup_data['success']
-                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
-                    folder_name = wp_instance['name'].replace(" ", "")             
-                    backup_path = str(home)+"/daily_backups/"+folder_name+"/"+str(date)
-                    Path(backup_path).mkdir(parents=True, exist_ok=True)
-                    Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
-                    #export sql File
-                    command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup_data['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
-                    try: 
-                        
-                        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT) 
-                        print (type(output))
-                        print (output)
-                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"
-                        
-                    except Exception as e:
-                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + str(e)+"<\p>" 
-                        print (str(e))
-                        pass
-                    #download sql File
-                    command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
-                    try: 
-                        output = subprocess.check_output(command, shell=True)  
-                        logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
-                    except Exception as e:
-                        logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + str(e)+"<\p>" 
-                        print (str(e) )
-                        pass
-                    
-                    
-                    command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
-                    try: 
-                        output = subprocess.check_output(command, shell=True) 
-                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
-                    except Exception as e:
-                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
-                        logging.info(logging_message)
-                        body += '<p>'+ logging_message + str(e) +"<\p>"    
-                        
-                        pass   
-                except Exception as e:
-                    logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
-                    logging.info(logging_message)
-                    body += '<p>'+ logging_message + str(e)+"<\p>"
-             
-
-                odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
-
+ 
     def import_wp_instance_plugins(self):
         #init connector
         odoo = oc.odoo_connector(self.token, self.host)
@@ -253,9 +174,107 @@ class WpServiceWorker:
             wp.execute_wp_cli(hostname, username, path, command)
             #print (wp.read_stdout_csv(output))
 
+class plugin(WpServiceWorker):
+        def __init__(self):
+            super().__init__()
+
+class theme(WpServiceWorker):
+        def __init__(self):
+            super().__init__()
+
+class core(WpServiceWorker):
+    def __init__(self):
+        super().__init__()
+    def backup_all(self):
+        print ('start backup')
+       #init connector
+        odoo = oc.odoo_connector(self.token, self.host)
+        #set model
+        model ="wp_instance.wp_core"
+        #set mod
+        mod = "search"
+        #set domain
+        #set fields, we need from the wp_instance
+        fields='["id","name"]'
+        wp_instances = odoo.search_record(fields=fields,mod=mod,model=model)
+        #loop wp_instances
+        for wp_instance in wp_instances:
+                print (wp_instance['name'])
+                id = wp_instance['id']
+                model = 'wp_instance.wp_core'
+                mod = 'backup_data'  
+                name='daily backup'
+                body = ''
+                try:
+                    #call methode from odoo wp_hosts modul to get sort data
+                    backup_data = odoo.call_record_method(id=str(wp_instance['id']), mod=mod,  model=model)
+                    backup_data = backup_data['success']
+                    backup_data = json.loads(backup_data.replace("'",'"'))[0]
+                    folder_name = wp_instance['name'].replace(" ", "")             
+                    backup_path = str(home)+"/daily_backups/"+folder_name+"/"+str(date)
+                    Path(backup_path).mkdir(parents=True, exist_ok=True)
+                    Path(backup_path+'/sql/').mkdir(parents=True, exist_ok=True)
+                    #export sql File
+                    command ='ssh '+ backup_data['user']  +'@'+ backup_data['wp_host'] +' '+ backup_data['wp_cli_path'] +' db export --path='+backup_data['wp_path']+' '+ backup_data['sql_path']+'/export-'+str(date)+'.sql'
+                    try: 
+                        
+                        output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT) 
+                        print (type(output))
+                        print (output)
+                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"
+                        
+                    except Exception as e:
+                        logging_message = name+' export_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + str(e)+"<\p>" 
+                        print (str(e))
+                        pass
+                    #download sql File
+                    command ='rsync -az -q -b '+ backup_data['user']  +'@'+ backup_data['wp_host'] +':' + backup_data['sql_path']+'/export-'+str(date)+'.sql '+backup_path+'/sql/export-'+str(date)+'.sql'
+                    try: 
+                        output = subprocess.check_output(command, shell=True)  
+                        logging_message = name+' download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
+                    except Exception as e:
+                        logging_message = name+' backup_download_sql_file' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + str(e)+"<\p>" 
+                        print (str(e) )
+                        pass
+                    
+                    
+                    command ='rsync -az --stats  '+ backup_data['user']  +'@'+ backup_data['wp_host'] + ':'+backup_data['wp_path']+ ' '+backup_path
+                    try: 
+                        output = subprocess.check_output(command, shell=True) 
+                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' success'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + "<\p>"+'<p>'+ output.decode("utf-8")  + "<\p>"          
+                    except Exception as e:
+                        logging_message = name+' download_wp' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                        logging.info(logging_message)
+                        body += '<p>'+ logging_message + str(e) +"<\p>"    
+                        
+                        pass   
+                except Exception as e:
+                    logging_message = name+' complete' + str(wp_instance['name']) + ' on ' + str(date) + ' failed'
+                    logging.info(logging_message)
+                    body += '<p>'+ logging_message + str(e)+"<\p>"
+             
+
+                odoo.create_notification(model=model,id=id,name=name, subject=mod, body=body)
+
 
 if __name__ == "__main__": 
-    fire.Fire(WpServiceWorker)
+    #fire.Fire(WpServiceWorker)
+     fire.Fire({
+      'core': core,
+      'plugin': plugin,
+      'theme': theme,
+     })
+
     #service = WpServiceWorker()
  #   cli = cli.wp__worker_cli()
 
